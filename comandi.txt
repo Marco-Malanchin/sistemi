@@ -1,0 +1,68 @@
+VTP SERVER:
+//PRIMA LE INTERFACCE DEVONO ESSERE SETTATE IN switchport mode trunk -> Switch(config-if)#switchport mode trunk
+
+Switch#show vtp status //vedo le info del vtp
+Switch(config)#vtp version 2
+Switch(config)#vtp mode server
+Switch(config)#vtp domain itis5F //nome
+Switch(config)#vtp password 123  // password
+
+//DOPO CREO LE VLAN
+Switch1   Switch(config)#vlan 10
+Switch1   Switch(config-vlan)#name sistemi
+
+VTP CLIENT:
+//PRIMA LE INTERFACCE DEVONO ESSERE SETTATE IN switchport mode trunk -> Switch(config-if)#switchport mode trunk
+
+Switch(config)#vtp version 2
+Switch(config)#vtp mode client
+Switch(config)#vtp domain itis5F
+Switch(config)#vtp password 123
+
+VLAN SWITCH:
+Switch#show vlan brief //guardo le VLAN
+Switch(config)#interface range fa0/1-12 // range di intererfacce sulla quale un vlan accede
+Switch(config-if-range)#switchport acces vlan 10 //vlan che accede alle interfacce
+
+Switch(config)#int gig0/1
+Switch(config-if)#switchport mode trunk //attento se lo hai già fatto nel vtp
+Switch(config-if)#switchport trunk allowed vlan none //nessuna vlan che passa
+Switch(config-if)#switchport trunk allowed vlan add 10 //aggiungono le vlan che possono passare
+
+VLAN SERVER:
+Router#vlan database // CREO DB
+Router(vlan)#vlan 10 name sistemi // Aggiungo il vlan al db
+Router(config)#int gig0/0.10 // interfaccia collegata con la vlan
+Router(config-subif)#encapsulation dot1Q 10 //numero della vlan
+Router(config-subif)#ip address 192.168.10.254 255.255.255.0 //indirizzo del router nella vlan (defoult-gateway)
+
+ROTTE STATICHE:
+Router(config)#ip route 10.0.0.0 255.255.255.0 10.0.1.5 //(rete da raggiungere) (subnet della rete) (indirizzo del router nel quale deve entrare)
+
+SSH switch/router:
+Switch(config)#int vlan 40// vlan o interfaccia sulla quale abbiamo dato accesso a ssh
+Switch(config-if)#ip address 192.168.40.1 255.255.255.0 //indirizzo ip della vlan
+Switch(config-if)#no shut
+Switch(config-if)#exit
+Switch(config)#hostname switch1 //nome del nostro dispositivo da comandare
+switch1(config)#ip domain name admin //nome
+switch1(config)#crypto key generate rsa //comando per crittografare
+How many bits in the modulus [512]: -> 1024 //quanti bit nel modulo (1024)
+switch1(config)#enable password admin //metto la password
+switch1(config)#username admin password admin //password
+switch1(config)#ip ssh version 2 //versione ssh
+switch1(config)#line vty 0 15 //metti ste robe
+switch1(config-line)#transport input ssh
+switch1(config-line)#login local
+
+SSH laptop:
+metto indirizzo ip subnet e defoult gateway della vlan associata dentro configuartion del laptop es ->
+192.168.40.2 (indirizzo del laptop) - 255.255.255.0(subnet) - 192.168.40.254(defoult-gateway)
+
+vado sul prompt
+
+ssh -l admin 192.168.40.1 //metto l'indirizzo del router o switch che devo raggiungere.
+
+
+
+
