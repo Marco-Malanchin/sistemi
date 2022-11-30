@@ -25,6 +25,8 @@ Switch(config)#interface range fa0/1-12 // range di intererfacce sulla quale un 
 Switch(config-if-range)#switchport acces vlan 10 //vlan che accede alle interfacce
 
 Switch(config)#int gig0/1
+Switch1   Switch(config)#vlan 10
+Switch1   Switch(config-vlan)#name sistemi
 Switch(config-if)#switchport mode trunk //attento se lo hai già fatto nel vtp
 Switch(config-if)#switchport trunk allowed vlan none //nessuna vlan che passa
 Switch(config-if)#switchport trunk allowed vlan add 10 //aggiungono le vlan che possono passare
@@ -38,6 +40,59 @@ Router(config-subif)#ip address 192.168.10.254 255.255.255.0 //indirizzo del rou
 
 ROTTE STATICHE:
 Router(config)#ip route 10.0.0.0 255.255.255.0 10.0.1.5 //(rete da raggiungere) (subnet della rete) (indirizzo del router nel quale deve entrare)
+
+SW-MULTYLAYER:
+Switch(config)#vlan 10 //creo le vlan
+Switch(config-vlan)#name informatica
+Switch(config-vlan)#int vlan 10 //metto solo le vlan appartenente all'area
+Switch(config-if)#ip address 192.168.10.254 //indirizzo di gateway
+Switch(config)#ip routing
+Switch(config)#vlan 10 //metto le vlan dell'area
+Switch(config-vlan)#vlan 20
+Switch(config-vlan)#int fa0/1 //solo interfacce collegate a switch no router
+Switch(config-if)#switchport trunk encapsulation dot1Q
+Switch(config-if)#switchport mode trunk
+Switch(config-if)#switchport trunk allowed vlan none
+Switch(config-if)#switchport trunk allowed vlan add 10//passo le vlan
+Switch(config-if)#int fa0/2//verso l'interfaccia del router
+Switch(config-if)#no switchport
+Switch(config-if)#ip address 10.0.0.10 255.0.0.0//metto ip
+
+
+PROTEZIONE LIVELLO PRIVILEGED EXEC
+ACCESSO PROTETTO DA PASSWORD CISCO:
+SW-Master>enable
+SW-Master#conf t
+SW-Master(config)#enable secret 5f//5f = password
+SW-Master(config)#service password-encryption//se voglio crittografare
+SW-Master(config)#end
+
+CRITTOGRAFARE LE PASSWORD
+ACCESSO PROTETTO DA PASSWORD cisco E class:
+enable
+configure terminal
+service password-encryption
+end
+exit
+
+AVVISO AI NAVIGANTI - MESSAGGIO BANNER
+ACCESSO PROTETTO DA PASSWORD cisco E class
+enable
+configure terminal
+banner motd #Authorized Access Only#
+
+DHCP:
+
+enable
+configure terminal
+ip dhcp pool a //nome pool dhcp
+network 10.168.0.0   255.255.0.0 //rete di appartenenza
+default-router 10.168.0.1 //router gateway
+exit
+ip dhcp excluded-address 10.168.0.1 10.168.0.254 //indirizzi da escludere
+service dhcp
+end
+exit
 
 SSH switch/router:
 Switch(config)#int vlan 40// vlan o interfaccia sulla quale abbiamo dato accesso a ssh
