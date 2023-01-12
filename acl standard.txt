@@ -1,0 +1,33 @@
+enable
+conf t
+int se 9/0
+ip access-group 1 out
+end 
+exit
+
+enable
+conf t
+access-list 1 permit 192.168.100.0 0.0.0.7
+end 
+exit
+
+enable
+conf t
+access-list 1 permit host 192.168.30.1
+end
+exit
+
+enable
+conf t
+int se 9/0
+ip access-group 100 out
+end 
+exit
+
+
+enable
+conf t
+access-list 100 permit tcp any 192.168.100.0 0.0.0.7 eq 80  //eq = porta del servizio
+access-list 100 permit tcp  any 192.168.100.0 0.0.0.7 eq 53 
+end 
+exit
